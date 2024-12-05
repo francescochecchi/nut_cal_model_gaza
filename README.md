@@ -32,4 +32,7 @@ To facilitate replication, we have included in the `/out` subfolder all the outp
 
 ## Description of each input file
 The input files include:
-* 
+* `03_kcal_capita_runs.rds`, the output of multiple simulations to estimate caloric availability during the retrospective period of analysis. THis file is an output of a separate analysis (see https://www.medrxiv.org/content/10.1101/2024.10.21.24315753v1).
+* `generic_pars.xlsx`, which contains several mostly metabolic parameters that should not be altered unless better data are available to the user: a description of the contents is contained within the file.
+* `crisis_specs.xlsx`, which contains input data, including for the retrospective and projection scenarios, specific to Gaza, as well as individual parameters. The user can vary these inputs as needed, but please refer to the description of the contents within the file.
+* `crisis_specs_test.xlsx` is a version of the above used to test the model's behaviour under different conditions, in a hypothetical population.
