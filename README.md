@@ -32,7 +32,15 @@ To facilitate replication, we have included in the `/out` subfolder all the outp
 
 ## Description of each input file
 The input files within sub-folder `\in` include:
-* `03_kcal_capita_runs.rds`, the output of multiple simulations to estimate caloric availability during the retrospective period of analysis. THis file is an output of a separate analysis (see https://www.medrxiv.org/content/10.1101/2024.10.21.24315753v1).
+* `03_kcal_capita_runs.rds`, the output of multiple simulations to estimate caloric availability during the retrospective period of analysis. This file is an output of a separate analysis (see https://www.medrxiv.org/content/10.1101/2024.10.21.24315753v1).
 * `generic_pars.xlsx`, which contains several mostly metabolic parameters that should not be altered unless better data are available to the user: a description of the contents is contained within the file.
 * `crisis_specs.xlsx`, which contains input data, including for the retrospective and projection scenarios, specific to Gaza, as well as individual parameters. The user can vary these inputs as needed, but please refer to the description of the contents within the file.
 * `crisis_specs_test_a.xlsx` and `crisis_specs_test_b.xlsx" are versions of the above used to test the model's behaviour under different conditions, in a hypothetical population (see paper).
+
+## About the `\for_paper` subfolder
+This sub-folder contains miscellaneous files required to set scenarios or produce visualisations for the paper, as follows:
+* `31_gaza_paper_misc.R` is a script that reads the following inputs, sets assumptions of Kcal intake over time for each scenario, visualises ground GAM estimates, visualises output of test runs of the model and prepare other graphs used in various presentations of the model
+* `kcal_capita_by_area_022.rds`, `kcal_capita_by_area_033.rds` and `kcal_capita_by_area_044.rds` contain the outputs of sensitivity analyses of a separate paper (https://www.medrxiv.org/content/10.1101/2024.10.21.24315753v1), assuming that caloric availability in the period 6 May 2024 to 30 Sep 2024 was under-estimated by 22%, 33% and 44%, respectively. These are used to set scenario assumptions.
+* `gaza_gam_ground.xlsx` contains meta-data from MUAC screenings performed by various actors across Gaza.
+* `gaza_ari_dis_assumptions.xlsx` is not read by any script but is included for transparency: it includes scraped meta-data from surveys in Gaza that asked about ARI and diarrhoea 2-week period prevalence, and assumptions made around these surveys to inform model inputs.
+Script 31 if self-standing and, if run, will output various graphs and files to this same sub-folder.
