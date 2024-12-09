@@ -43,4 +43,5 @@ This sub-folder contains miscellaneous files required to set scenarios or produc
 * `kcal_capita_by_area_022.rds`, `kcal_capita_by_area_033.rds` and `kcal_capita_by_area_044.rds` contain the outputs of sensitivity analyses of a separate paper (https://www.medrxiv.org/content/10.1101/2024.10.21.24315753v1), assuming that caloric availability in the period 6 May 2024 to 30 Sep 2024 was under-estimated by 22%, 33% and 44%, respectively. These are used to set scenario assumptions.
 * `gaza_gam_ground.xlsx` contains meta-data from MUAC screenings performed by various actors across Gaza.
 * `gaza_ari_dis_assumptions.xlsx` is not read by any script but is included for transparency: it includes scraped meta-data from surveys in Gaza that asked about ARI and diarrhoea 2-week period prevalence, and assumptions made around these surveys to inform model inputs.
+* `22_out_agg_test_a.rds` and `22_out_agg_test_b.rds` are outputs of the model test runs under different conditions (see paper).
 Script 31 if self-standing and, if run, will output various graphs and files to this same sub-folder.
