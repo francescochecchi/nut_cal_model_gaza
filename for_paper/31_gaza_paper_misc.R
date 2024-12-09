@@ -61,9 +61,9 @@
   ## Prepare inputs and outputs
 
     # Read and bind scenario data
-    best <- readRDS(paste0(dir_path, "03_kcal_capita_by_area_044.rds"))
-    central <- readRDS(paste0(dir_path, "03_kcal_capita_by_area_033.rds"))
-    worst <- readRDS(paste0(dir_path, "03_kcal_capita_by_area_022.rds"))
+    best <- readRDS(paste0(dir_path, "kcal_capita_by_area_044.rds"))
+    central <- readRDS(paste0(dir_path, "kcal_capita_by_area_033.rds"))
+    worst <- readRDS(paste0(dir_path, "kcal_capita_by_area_022.rds"))
     central <- subset(central, week >= as.Date("2024-05-07"))
     worst <- subset(worst, week >= as.Date("2024-05-07"))
     all <- do.call(rbind, list(best, central, worst))
@@ -174,7 +174,7 @@
 
     
 #...............................................................................
-### Visualising GAM and SAM ground prevalence estimates
+### Visualising GAM ground prevalence estimates
 #...............................................................................
 
   #...................................      
@@ -208,7 +208,7 @@
     
     # Set up output
     sm <- expand.grid(
-      date_mid = as.Date(as.Date("2024-01-01") : as.Date("2024-10-31")),
+      date_mid = as.Date(as.Date("2024-01-01") : as.Date("2024-11-30")),
       governorate = unique(df$governorate)
     )
     x <- length(unique(df$governorate))
@@ -349,7 +349,7 @@
     out_agg <- readRDS(paste0(dir_path, "22_out_agg_test_b.rds"))
     df <- subset(out_agg, outcome == "mean WHZ")
     df$day <- as.integer(df$date - min(df$date))
-    df$sacrifice <- (100-as.numeric(gsub("%","",as.character(df$scenario))))/100
+    df$sacrifice <- (as.numeric(gsub("%","",as.character(df$scenario))))/100
     df$sacrifice <- factor(df$sacrifice, levels = c(0.10,0.20,0.30,0.40),
       labels = c("10%","20%","30%","40%"))
     pl_b <- ggplot(df, aes(x = day,
