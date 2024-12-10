@@ -228,8 +228,13 @@ for (run_i in 1:n_runs) {
 } # close runs loop    
 # stopCluster(cl = clusters) # stop cluster
 
+    
+#...............................................................................  
+### Visualising model output
+#...............................................................................
+    
   #...................................      
-  ## Visualise model output
+  ## Aggregate and compute uncertainty intervals
 
     # Compute SAM, MAM and GAM prevalence
     out_sim$pmam_0659 <- out_sim$mam_0659 / out_sim$n_0659
@@ -241,15 +246,16 @@ for (run_i in 1:n_runs) {
     outcomes_new <- c(outcomes, "pmam_0659", "psam_0659", "pgam_0659",
       "pmam_0623", "psam_0623", "pgam_0623")
     
-    # Compute medians and 80%, 95% CIs of run outputs (and reshape long)
+    # Compute mean, medians and 80%, 95% CIs of run outputs (and reshape long)
     out_agg <- aggregate(out_sim[, outcomes_new], by = out_sim[, c("area", 
       "scenario", "date")], 
-      function(x) {quantile(x, c(0.50, 0.10, 0.90, 0.025, 0.975), na.rm = T)})
+      function(x) {c(mean(x, na.rm = T), 
+        quantile(x, c(0.50, 0.10, 0.90, 0.025, 0.975), na.rm = T))})
     x <- as.data.frame(do.call(rbind, out_agg[, outcomes_new]))
     x$outcome <- rep(outcomes_new, each = nrow(out_agg))
     x[,c("area", "scenario", "date")] <- out_agg[,c("area", "scenario", "date")]
     out_agg <- x
-    colnames(out_agg) <- c("median", "lci80", "uci80", "lci95", "uci95",
+    colnames(out_agg) <- c("mean", "median", "lci80", "uci80", "lci95", "uci95",
       "outcome", "area", "scenario", "date")
     x <- c()
     if (retro == "yes") {x <- c("retrospective")}
@@ -271,6 +277,10 @@ for (run_i in 1:n_runs) {
     # Save simulation output
     saveRDS(out_sim, paste0(dir_path, "out/22_out_sim.rds"))
     saveRDS(out_agg, paste0(dir_path, "out/22_out_agg.rds"))
+    
+    
+  #...................................      
+  ## Produce generic visualisations
     
     # Graph trends in all the outcomes (point estimate only), by area
     pl_list <- vector("list", length(areas))
@@ -363,7 +373,11 @@ for (run_i in 1:n_runs) {
     ggsave(paste0(dir_path, "out/22_results_whz_only.png"), units = "cm",
       dpi = "print", width = 15 * length(areas), height = 15)
 
-    # Graph trends in select nutritional outcomes, by area
+    
+  #...................................      
+  ## Produce visualisations for publication
+    
+    # Graph trends in select nutritional outcomes, by area (with CIs)
     x <- c("SAM prevalence (6-59mo)", "GAM prevalence (6-59mo)",
       "GAM prevalence (6-23mo)")
     ncols <- length(x)
@@ -412,7 +426,55 @@ for (run_i in 1:n_runs) {
       dpi = "print", height = 6 * (ncols + 1), width = 10 * length(areas),
        bg="white")
 
-       
+    # Graph trends in select nutritional outcomes, by area (simpler without CIs)
+    x <- c("SAM prevalence (6-59mo)", "GAM prevalence (6-59mo)")
+    ncols <- length(x)
+    df <- out_agg[which(out_agg$outcome %in% x), ]
+    pl_a <- ggplot(df, aes(x = date, 
+      y = median, colour = scenario, fill = scenario, linetype = scenario)) +
+      geom_step(linewidth = 1) +
+      # geom_stepribbon(aes(ymin = lci95, ymax = uci95), alpha = 0.1, colour=NA) +
+      # geom_stepribbon(aes(ymin = lci80, ymax = uci80), alpha = 0.2, colour=NA) +
+      theme_bw() +
+      scale_x_date("date", date_labels = "%b-%Y", breaks = "1 month", 
+        expand = c(0,0)) +
+      scale_y_continuous("prevalence", labels = percent, limits = c(0, NA),
+        breaks = seq(0, 1, 0.05), expand = expansion(mult=0, add=c(0,0.02))) +
+      scale_linetype_manual("scenario", 
+        values = c("solid","11","31","22","12","33")) +
+      scale_colour_manual("scenario", values = palette_gen[c(1,5,9,15,12,3)]) +
+      scale_fill_manual("scenario", values = palette_gen[c(1,5,9,15,12,3)]) +
+      facet_grid(outcome ~ area, scales = "free_y") +
+      theme(legend.position = "top", axis.text.x = element_blank(), 
+        axis.title.x = element_blank(), axis.ticks.x = element_blank())
+    df <- out_agg[which(out_agg$outcome == "mean WHZ"), ]
+    pl_b <- ggplot(df, aes(x = date, 
+      y = median, colour = scenario, fill = scenario, linetype = scenario)) +
+      geom_step(linewidth = 1) +
+      # geom_stepribbon(aes(ymin = lci95, ymax = uci95), alpha = 0.1, colour=NA) +
+      # geom_stepribbon(aes(ymin = lci80, ymax = uci80), alpha = 0.2, colour=NA) +
+      theme_bw() +
+      scale_x_date("date", date_labels = "%b-%Y", breaks = "1 month", 
+        expand = c(0,0)) +
+      scale_y_continuous("mean WHZ", limits = c(NA, NA)) +
+      scale_linetype_manual("scenario", 
+        values = c("solid","11","31","22","12","33")) +
+      scale_colour_manual("scenario", values = palette_gen[c(1,5,9,15,12,3)]) +
+      scale_fill_manual("scenario", values = palette_gen[c(1,5,9,15,12,3)]) +
+      facet_grid(outcome ~ area, scales = "free_y") +
+      theme(legend.position = "top", axis.text.x = element_text(angle = 30,
+        hjust = 0.7, vjust = 0.7), axis.title.x = element_blank(),
+        strip.background.x = element_blank(), strip.text.x = element_blank())
+    ggarrange(pl_a, pl_b, labels = NA, common.legend = T, heights = c(3,1),
+      ncol = 1, nrow = 2, align = "v")
+    ggsave(paste0(dir_path, "out/22_results_nut_select_wide_noci.png"), 
+      units = "cm", dpi = "print", width = 10 * (ncols + 1), 
+      height = 8 * length(areas), bg="white")
+    ggsave(paste0(dir_path, "out/22_results_nut_select_long_noci.png"), 
+      units = "cm", dpi = "print", width = 10 * length(areas),
+       height = 8 * (ncols + 1), bg="white")
+
+           
 #...............................................................................  
 ### ENDS
 #...............................................................................
