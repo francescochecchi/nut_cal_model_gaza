@@ -309,7 +309,72 @@
     ggsave(paste0(dir_path, "31_trends_gam_muacz_wide.png"), units = "cm",
       dpi = "print", width = 32, height = 17)
     
-  
+
+  #...................................      
+  ## Plot non-sick estimates by governorate on same axis as modelled prevalence
+    
+    # Plot non-sick estimates by region and governorate
+    sm$area <- ifelse(sm$governorate %in% 
+      c("north (Gaza City)", "north (North Gaza)"), "northern", "south-central")
+    df <- subset(sm, age == "GAM prevalence (MUACZ < 2SD), 6-23mo")
+    pl_a <- ggplot(df, aes(y = est,
+      x = date_mid, colour = governorate, fill = governorate, size = sampsi,
+      group = governorate)) +
+      geom_point(alpha = 0.5) +
+      geom_line(aes(y = smooth, x = date_mid,
+        colour = governorate, group = governorate), 
+        linewidth = 0.5, linetype = "11") +
+      scale_y_continuous("prevalence", 
+        limits = c(0, 0.4), labels = percent, breaks = seq(0, 1, 0.1)) +
+      scale_x_date("date", date_labels = "%b-%Y", breaks = "1 month", 
+        expand = c(0,0), limits = as.Date(c("2023-10-07", "2024-12-31"))) +
+      scale_size_continuous("sample size") +
+      facet_grid(governorate~., 
+        labeller = as_labeller(
+        c("north (Gaza City)" = "north\n(Gaza City)", 
+          "north (North Gaza)" = "north\n(North Gaza)",
+          "south-central (Deir el Balah)" = "south-central\n(Deir el Balah)", 
+          "south-central (Khan Younis)" = "south-central\n(Khan Younis)",
+          "south-central (Rafah)" = "south-central\n(Rafah)"))) +
+      theme_bw() +
+      scale_colour_manual("governorate", values = palette_gen[c(1,4,7,11,14)]) +
+      scale_fill_manual("governorate", values = palette_gen[c(1,4,7,11,14)]) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 0.5, vjust = 0.5),
+        legend.position = "top", plot.margin = margin(10,0,0,0)) +
+      guides(colour = "none", fill = "none")
+    
+    # Plot model estimates
+    out_agg <- readRDS(paste0(dir_path, "22_out_agg.rds"))
+    df <- subset(out_agg, outcome == "GAM prevalence (6-59mo)")
+    pl_b <- ggplot(df, aes(x = date, 
+      y = median, colour = scenario, fill = scenario, linetype = scenario)) +
+      geom_step(linewidth = 1) +
+      theme_bw() +
+      scale_x_date("date", date_labels = "%b-%Y", breaks = "1 month", 
+        expand = c(0,0)) +
+      scale_y_continuous("prevalence", 
+        labels = percent, limits = c(0, 0.4),
+        breaks = seq(0, 1, 0.1), expand = expansion(mult=0, add=c(0,0.02))) +
+      scale_linetype_manual("scenario", 
+        values = c("solid","11","31","22","12","33")) +
+      scale_colour_manual("scenario", values = palette_gen[c(1,5,9,15,12,3)]) +
+      scale_fill_manual("scenario", values = palette_gen[c(1,5,9,15,12,3)]) +
+      facet_grid(area ~., labeller = as_labeller(c("north" = "north\n ",
+        "south-central" = "south-central\n "))) +
+      theme(legend.position = "top", axis.text.x = element_blank(), 
+        axis.title.x = element_blank(), axis.ticks.x = element_blank(),
+         plot.margin = margin(20,0,10,0))
+    
+    # Combination plot
+    ggarrange(pl_b, pl_a, nrow = 2, ncol = 1, heights = c(2, 5),
+      labels = c("modelled GAM prevalence (weight-for-height, 6-59 months old)",
+        "observed GAM prevalence (MUAC-based screenings, 6-23 months old)"),
+      font.label = list(size = 10, colour = "grey20"), hjust = 0,
+      align = "v")
+    ggsave(paste0(dir_path, "31_plot_prev_combi.png"), units = "cm",
+      dpi = "print", width = 23, height = 29)
+
+      
 #...............................................................................
 ### Visualising test model output
       # first need to run model with `crisis_specs_test.xlsx`;
