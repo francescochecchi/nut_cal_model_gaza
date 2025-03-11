@@ -17,10 +17,10 @@ if (! file.exists(paste0(dir_path, "out/12_df_ha.csv"))) {
   ## Read or generate necessary inputs
   
     # Read growth centiles from GAMLSS model
-    out_centiles <- readRDS(paste0(dir_path, "out/11_centiles.rds"))    
+    centiles <- readRDS(paste0(dir_path, "out/11_centiles.rds"))    
     
     # Select only median weight curves
-    medians <- out_centiles[which(out_centiles$measure == "weight"), 
+    medians <- centiles[which(centiles$measure == "weight"), 
       c("age", "sex", "c50")]
     medians <- medians[order(medians$sex, medians$age), ]
   
@@ -163,15 +163,15 @@ if (! file.exists(paste0(dir_path, "out/12_cal_ml.csv"))) {
     df_ha <- read.csv(paste0(dir_path,"out/12_df_ha.csv"))
 
     # Read growth centiles from GAMLSS model
-    out_centiles <- readRDS(paste0(dir_path, "out/11_centiles.rds"))
-    out_centiles <- out_centiles[order(out_centiles$measure, out_centiles$sex,
-      out_centiles$age), ]
+    centiles <- readRDS(paste0(dir_path, "out/11_centiles.rds"))
+    centiles <- centiles[order(centiles$measure, centiles$sex,
+      centiles$age), ]
     
     # Prepare data
-    df_ls <- reshape(subset(out_centiles, measure == "weight"),
+    df_ls <- reshape(subset(centiles, measure == "weight"),
       direction = "long", idvar = c("sex", "age"), timevar = "centile_weight",
-      varying = grep("^q[[:digit:]]", colnames(out_centiles), value = T),
-      times = grep("^q[[:digit:]]", colnames(out_centiles), value = T),
+      varying = grep("^c[[:digit:]]", colnames(centiles), value = T),
+      times = grep("^c[[:digit:]]", colnames(centiles), value = T),
       v.names = "weight", drop = "measure")
     df_ls$centile_weight <- factor(df_ls$centile, levels = paste0("c", 0:100))
     df_ls <- df_ls[order(df_ls$centile_weight, df_ls$sex, df_ls$age),
